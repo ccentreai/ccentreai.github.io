@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Areguá Forest — Reservá tu visita</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --forest: #1a2e1a;
+    --forest-mid: #2d4a2d;
+    --sage: #7a9e7a;
+    --cream: #f5f0e8;
+    --gold: #c9a84c;
+    --text: #1a2e1a;
+  }
+
+  body {
+    font-family: 'Jost', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 50%, rgba(122,158,122,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 80% at 80% 30%, rgba(26,46,26,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .trees {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    opacity: 0.06;
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        transparent 0px, transparent 30px,
+        var(--forest) 30px, var(--forest) 32px,
+        transparent 32px, transparent 80px
+      );
+    mask-image: linear-gradient(to top, black 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .brand-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .brand-icon { width: 36px; height: 36px; opacity: 0.7; }
+
+  .brand-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.15em;
+    color: var(--forest);
+    text-transform: uppercase;
+  }
+
+  .brand-tagline {
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 300;
+  }
+
+  .card {
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(26,46,26,0.12);
+    border-radius: 4px;
+    padding: 48px 40px;
+    animation: fadeUp 0.8s ease 0.15s both;
+  }
+
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--forest);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+
+  .card-title em { font-style: italic; font-weight: 300; }
+
+  .card-sub {
+    font-size: 13px;
+    color: var(--sage);
+    font-weight: 300;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  .field { margin-bottom: 20px; }
+
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sage);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px 0;
+    border: none;
+    border-bottom: 1px solid rgba(26,46,26,0.2);
+    background: transparent;
+    font-family: 'Jost', sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+    color: var(--forest);
+    outline: none;
+    transition: border-color 0.3s;
+  }
+
+  input:focus { border-bottom-color: var(--forest); }
+  input::placeholder { color: rgba(26,46,26,0.3); font-style: italic; }
+
+  .btn {
+    width: 100%;
+    margin-top: 36px;
+    padding: 16px 24px;
+    background: var(--forest);
+    color: var(--cream);
+    border: none;
+    border-radius: 2px;
+    font-family: 'Jost', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .btn:hover:not(:disabled) { background: var(--forest-mid); transform: translateY(-1px); }
+  .btn:active:not(:disabled) { transform: translateY(0); }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-icon { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .status {
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 2px;
+    font-size: 13px;
+    font-weight: 300;
+    display: none;
+    line-height: 1.5;
+  }
+
+  .status.calling {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(26,46,26,0.06); color: var(--forest);
+    border-left: 2px solid var(--sage);
+  }
+
+  .status.success {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(201,168,76,0.1); color: #7a5c1e;
+    border-left: 2px solid var(--gold);
+  }
+
+  .status.error {
+    display: flex; align-items: center; gap: 12px;
+    background: rgba(180,50,50,0.06); color: #8b2020;
+    border-left: 2px solid #c06060;
+  }
+
+  .spinner {
+    width: 16px; height: 16px;
+    border: 1.5px solid rgba(26,46,26,0.2);
+    border-top-color: var(--forest);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+  }
+
+  .divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 36px 0 24px;
+  }
+
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: rgba(26,46,26,0.1);
+  }
+
+  .divider span {
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(26,46,26,0.3); font-weight: 300;
+  }
+
+  .badges { display: flex; justify-content: center; gap: 24px; }
+
+  .badge {
+    font-size: 10px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--sage); font-weight: 300;
+    display: flex; align-items: center; gap: 5px;
+  }
+
+  .badge svg { width: 12px; height: 12px; opacity: 0.6; }
+
+  .powered {
+    text-align: center; margin-top: 32px;
+    font-size: 10px; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(26,46,26,0.25);
+    animation: fadeUp 0.8s ease 0.3s both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="trees"></div>
+
+<div class="container">
+
+  <div class="brand">
+    <div class="brand-mark">
+      <svg class="brand-icon" viewBox="0 0 36 36" fill="none">
+        <path d="M18 4 L18 32 M18 4 L10 14 M18 4 L26 14 M18 12 L8 22 M18 12 L28 22" stroke="#1a2e1a" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span class="brand-name">Areguá Forest</span>
+    </div>
+    <div class="brand-tagline">Naturaleza · Inversión · Exclusividad</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Reservá tu <em>visita privada</em></div>
+    <p class="card-sub">Dejanos tu nombre y teléfono. Nuestra recepcionista te llama en segundos para coordinar todo.</p>
+
+    <div class="field">
+      <label for="nombre">Tu nombre</label>
+      <input type="text" id="nombre" placeholder="Ej. Carlos Rodríguez" autocomplete="name">
+    </div>
+
+    <div class="field">
+      <label for="telefono">Teléfono con código de país</label>
+      <input type="tel" id="telefono" placeholder="+595 9XX XXX XXX" autocomplete="tel">
+    </div>
+
+    <button class="btn" id="btn-llamar" onclick="llamar()">
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 0 0 .21 2.19 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+      </svg>
+      Quiero que me llamen ahora
+    </button>
+
+    <div class="status calling" id="status-calling">
+      <div class="spinner"></div>
+      <span>Conectando con Sofía... preparate para recibir la llamada en segundos.</span>
+    </div>
+
+    <div class="status success" id="status-success">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>¡Llamada iniciada! Sofía te llama en los próximos segundos. Atendé tu teléfono.</span>
+    </div>
+
+    <div class="status error" id="status-error">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="error-msg">Hubo un error. Intentá de nuevo.</span>
+    </div>
+
+    <div class="divider"><span>Garantías</span></div>
+
+    <div class="badges">
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Datos seguros
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Respuesta inmediata
+      </div>
+      <div class="badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Sin compromiso
+      </div>
+    </div>
+  </div>
+
+  <div class="powered">Atendido por CCentre IA · 24/7</div>
+
+</div>
+
+
+<script>
+const MAKE_URL = 'https://hook.us2.make.com/gryqd8px9t4eep8rl7txplqa44eeec68';
+
+async function llamar() {
+  const nombre   = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+
+  if (!nombre || !telefono) {
+    mostrarError('Por favor completá tu nombre y teléfono.');
+    return;
+  }
+
+  const telefonoLimpio = telefono.replace(/[\s\-\(\)]/g, '');
+  if (!telefonoLimpio.startsWith('+')) {
+    mostrarError('El teléfono debe incluir el código de país. Ej: +595981234567');
+    return;
+  }
+
+  const btn = document.getElementById('btn-llamar');
+  btn.disabled = true;
+  btn.style.background = '#c9a84c';
+  btn.style.color = '#1a2e1a';
+  btn.innerHTML = '<div class="spinner" style="border-color:rgba(26,46,26,0.2);border-top-color:#1a2e1a"></div> Conectando...';
+  ocultarEstados();
+  document.getElementById('status-calling').style.display = 'flex';
+
+  try {
+    const res = await fetch(MAKE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nombre, telefono: telefonoLimpio })
+    });
+
+    ocultarEstados();
+
+    if (res.ok) {
+      btn.style.background = '#2d6a2d';
+      btn.style.color = '#f5f0e8';
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><polyline points="20 6 9 17 4 12"/></svg> Sofia te llama ahora!';
+      document.getElementById('status-success').style.display = 'flex';
+    } else {
+      mostrarError('Error al iniciar la llamada. Intenta de nuevo.');
+      resetBtn(btn);
+    }
+  } catch (e) {
+    ocultarEstados();
+    mostrarError('No se pudo conectar. Revisa tu conexion.');
+    resetBtn(btn);
+  }
+}
+
+function resetBtn(btn) {
+  btn.disabled = false;
+  btn.style.background = '';
+  btn.style.color = '';
+  btn.innerHTML = 'Quiero que me llamen ahora';
+}
+
+function ocultarEstados() {
+  ['status-calling','status-success','status-error'].forEach(function(id) {
+    document.getElementById(id).style.display = 'none';
+  });
+}
+
+function mostrarError(msg) {
+  document.getElementById('error-msg').textContent = msg;
+  document.getElementById('status-error').style.display = 'flex';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') llamar();
+});
+</script>
+
+</body>
+</html>
